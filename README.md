@@ -23,7 +23,7 @@ select an idol, and all cards will be unlocked. Click "Save all images" button w
 ![Idol page](./intro/idol_page.png)
 
 ## BUG
-If you try to view a card with premium sign which you don't own, the sign will not shine and an exception will happened.
+If you try to view a card with premium sign which you don't own, the sign will not shine and an exception will happen.
 
 ## License
 [The MIT License (MIT)](https://github.com/Yoctillion/CinderellaGirlsGalleryEnhance/blob/master/LICENSE)
