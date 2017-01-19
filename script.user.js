@@ -7,9 +7,9 @@
 // @include      http://sp.pf.mbga.jp/12008305/?guid=ON&*url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fidol_gallery%2Fidol_detail%2F*
 // @require      https://raw.githubusercontent.com/Stuk/jszip/master/dist/jszip.min.js
 // @require      https://raw.githubusercontent.com/eligrey/FileSaver.js/master/FileSaver.min.js
-// @updateURL    https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/script.js
-// @downloadURL  https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/script.js
-// @license      MIT
+// @updateURL    https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/script.user.js
+// @downloadURL  https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/script.user.js
+// @license      https://github.com/Yoctillion/CinderellaGirlsGalleryEnhance/blob/master/LICENSE
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
 // ==/UserScript==
