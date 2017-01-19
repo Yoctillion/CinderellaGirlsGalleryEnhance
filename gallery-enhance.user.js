@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cinderella Girls gallery enhance
 // @namespace    http://github.com/Yoctillion
-// @version      1.0
+// @version      1.1
 // @author       Yoctillion
 // @description  Unlock cards and download
 // @include      http://sp.pf.mbga.jp/12008305/?guid=ON&*url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fidol_gallery%2Fidol_detail%2F*
@@ -40,10 +40,6 @@
                 detail.archive.premium = "1";
 
                 // no way to get sign id
-                if (!detail.premium_sign_idol_base_id) {
-                    detail.premium_sign_idol_base_id = i;
-                    detail.js_premium_sign = getSignJSUrl(i);
-                }
 
                 if (!images.l[i])          images.l[i]          = getSignUrl(large, hashId);
                 if (!images.l_premium[i])  images.l_premium[i]  = getPremiumUrl(large, hashId);
