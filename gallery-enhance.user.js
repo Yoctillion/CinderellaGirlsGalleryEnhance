@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cinderella Girls gallery enhance
 // @namespace    http://github.com/Yoctillion
-// @version      1.1
+// @version      1.2
 // @author       Yoctillion
 // @description  Unlock cards and download
 // @include      http://sp.pf.mbga.jp/12008305/?guid=ON&*url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fidol_gallery%2Fidol_detail%2F*
@@ -24,6 +24,8 @@
 
     let cardNames = [];
     let idolName;
+
+    let failCount;
 
     function updateIdol(idol) {
         let images = idol.images;
@@ -149,6 +151,7 @@
                 }
                 else {
                     console.log(path + " fail: " + url + " " + resp.status + " " + resp.statusText);
+                    failCount += 1;
                 }
 
                 task.complete();
@@ -196,6 +199,7 @@
     btn.innerHTML = "Save all images";
 
     btn.onclick = function() {
+        failCount = 0;
         btn.disabled = true;
         btn.innerHTML = "Downloading...";
 
@@ -218,7 +222,7 @@
                 }
             );
 
-            btn.innerHTML = "Finished";
+            btn.innerHTML = "Finished" + failCount > 0 ? (", " + failCount + " failed") : "";
 
             setTimeout(function() {
                 btn.disabled = false;
