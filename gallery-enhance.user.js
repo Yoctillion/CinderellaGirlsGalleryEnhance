@@ -168,6 +168,10 @@
         return task;
     }
 
+    function insertAfter(newNode, referenceNode) {
+        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    }
+
     const notExistClass = "not_exist";
     let not_exists = document.getElementsByClassName(notExistClass);
     while(not_exists.length > 0) {
@@ -184,7 +188,13 @@
 
     // download button
     let btn = document.createElement("button");
+
+    // style
+    btn.className = "grayButton300";
+    btn.setAttribute("style", "position: relative;");
+
     btn.innerHTML = "Save all images";
+
     btn.onclick = function() {
         btn.disabled = true;
         btn.innerHTML = "Downloading...";
@@ -208,15 +218,15 @@
                 }
             );
 
-            btn.disabled = false;
             btn.innerHTML = "Finished";
 
             setTimeout(function() {
+                btn.disabled = false;
                 btn.innerHTML = "Save all images";
             }, 3000);
         };
     };
 
-    btn.setAttribute("style", "position: fixed; bottom: 100px; right: 0px");
-    document.body.appendChild(btn);
+    let naviIcon = document.getElementsByClassName("icon_navi")[0];
+    insertAfter(btn, naviIcon);
 })();
