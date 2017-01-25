@@ -15,17 +15,17 @@
 // ==/UserScript==
 
 (function() {
-    const baseUrl = "http://sp.pf-img-a.mbga.jp/12008305/?guid=ON&amp;url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2F";
-
-    const large = "l";
-    const m2 = "m2";
-    const xs = "xs";
-    const quest = "quest";
+    const ImageType = {
+        large:    "l",
+        m2:       "m2",
+        xs:       "xs",
+        quest:    "quest",
+        noframe:  "l_noframe",
+        premium:  "l_premium"
+    };
 
     let cardNames = [];
     let idolName;
-
-    let failCount;
 
     function updateIdol(idol) {
         let images = idol.images;
@@ -35,70 +35,80 @@
             detail.is_exist_archive = true;
             detail.archive.normal = "1";
 
-            let hashId = detail.data.hash_card_id;
             let rarity = parseInt(detail.data.rarity);
+
+            let card = new Card(detail.data.hash_card_id);
             if (rarity >= 5) { // SR / SR+
                 detail.show_card_type = "l";
                 detail.archive.premium = "1";
 
                 // no way to get sign id
 
-                if (!images.l[i])          images.l[i]          = getSignUrl(large, hashId);
-                if (!images.l_premium[i])  images.l_premium[i]  = getPremiumUrl(large, hashId);
-                if (!images.l_nosign[i])   images.l_nosign[i]   = getNoSignUrl(large, hashId);
-                if (!images.l_nosign_p[i]) images.l_nosign_p[i] = getNoSignPremiumUrl(large, hashId);
-                if (!images.l_noframe[i])  images.l_noframe[i]  = getLargeNoFrameUrl(hashId);
+                if (!images.l[i])          images.l[i]          = card.getSignUrl(ImageType.large);
+                if (!images.l_premium[i])  images.l_premium[i]  = card.getPremiumUrl(ImageType.large);
+                if (!images.l_nosign[i])   images.l_nosign[i]   = card.getNoSignUrl(ImageType.large);
+                if (!images.l_nosign_p[i]) images.l_nosign_p[i] = card.getNoSignPremiumUrl(ImageType.large);
+                if (!images.l_noframe[i])  images.l_noframe[i]  = card.getLargeNoFrameUrl();
             } else {    // N / N+ / R / R+
-                if (!images.l[i]) images.l[i] = getCardUrl(large, hashId);
+                if (!images.l[i]) images.l[i] = card.getCardUrl(ImageType.large);
             }
-            if (!images.m2[i])    images.m2[i]    = getCardUrl(m2, hashId);
-            if (!images.quest[i]) images.quest[i] = getCardUrl(quest, hashId);
+            if (!images.m2[i])    images.m2[i]    = card.getCardUrl(ImageType.m2);
+            if (!images.quest[i]) images.quest[i] = card.getCardUrl(ImageType.quest);
         }
     }
 
-    function getCardUrl(size, hashId) {
-        return getNoSignUrl(size, hashId);
-    }
+    class Card {
+        constructor(hashId) {
+            this.baseUrl = "http://sp.pf-img-a.mbga.jp/12008305/?guid=ON&amp;url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2F";
+            this.hashId  = hashId;
+        }
 
-    function getSignUrl(size, hashId) {
-        return getImageUrl("card_sign_b", size, hashId);
-    }
+        getCardUrl(size) {
+            return this.getNoSignUrl(size);
+        }
 
-    function getNoSignUrl(size, hashId) {
-        return getImageUrl("card", size, hashId);
-    }
+        getSignUrl(size) {
+            return this.getImageUrl("card_sign_b", size);
+        }
 
-    function getPremiumUrl(size, hashId) {
-        return getImageUrl("card_sign_p", size, hashId);
-    }
+        getNoSignUrl(size) {
+            return this.getImageUrl("card", size);
+        }
 
-    function getNoSignPremiumUrl(size, hashId) {
-        return getImageUrl("card_sign_no_p", size, hashId);
-    }
+        getPremiumUrl(size) {
+            return this.getImageUrl("card_sign_p", size);
+        }
 
-    function getLargeNoFrameUrl(hashId) {
-        return getImageUrl("card", "l_noframe", hashId);
-    }
+        getNoSignPremiumUrl(size) {
+            return this.getImageUrl("card_sign_no_p", size);
+        }
 
-    function getImageUrl(type, size, hashId) {
-        return baseUrl + "image_sp%2F" + type + "%2F" + size + "%2F" + hashId + ".jpg";
-        // no way to get version
-    }
+        getLargeNoFrameUrl() {
+            return this.getImageUrl("card", "l_noframe");
+        }
 
-    function getSignJSUrl(id) {
-        return baseUrl + "js%2Fcjs%2Fpremium%2Fsign_effect_" + id + ".js";
-        // no way to get version
+        getImageUrl(type, size) {
+            return this.baseUrl + "image_sp%2F" + type + "%2F" + size + "%2F" + this.hashId + ".jpg";
+            // no way to get version
+        }
+
+        getSignJSUrl(id) {
+            return baseUrl + "js%2Fcjs%2Fpremium%2Fsign_effect_" + id + ".js";
+            // no way to get version
+        }
     }
 
     // manage tasks
     // ugly and unstable
-    function Task() {
-        this.completed = false;
-        this.tasks = [];
-        this.parent = null;
-        this.onCompleted = null;
+    class Task {
+        constructor() {
+            this.completed = false;
+            this.tasks = [];
+            this.parent = null;
+            this.onCompleted = null;
+        }
 
-        this.complete = function() {
+        complete() {
             if (this.tasks.length === 0) {
                 this.completed = true;
             }
@@ -106,9 +116,9 @@
             if (this.parent) {
                 this.parent.notify(this);
             }
-        };
+        }
 
-        this.isCompleted = function() {
+        isCompleted() {
             if (this.tasks.length === 0) {
                 return this.completed;
             }
@@ -119,24 +129,24 @@
                 }
             }
             return true;
-        };
+        }
 
-        this.wait = function(task) {
+        wait(task) {
             task.parent = this;
             this.tasks.push(task);
-        };
+        }
 
-        this.notify = function(task) {
+        notify(task) {
             if (this.isCompleted()) {
                 if (this.onCompleted) {
                     this.onCompleted();
                 }
                 this.complete();
             }
-        };
+        }
     }
 
-    function download(zip, url, path) {
+    function download(zip, url, path, counter) {
         let task = new Task();
 
         GM_xmlhttpRequest({
@@ -144,28 +154,30 @@
             url:          url,
             responseType: "blob",
             onload:
-            function(resp) {
+            resp => {
                 if (resp.status === 200) {
                     zip.file(path, resp.response, {binary: true});
                     console.log(path + " completed");
+                    counter.success += 1;
                 }
                 else {
                     console.log(path + " fail: " + url + " " + resp.status + " " + resp.statusText);
-                    failCount += 1;
+                    counter.fail += 1;
                 }
 
                 task.complete();
+                counter.update();
             }
         });
         return task;
     }
 
-    function downloadAll(zip, urls, folder) {
+    function downloadAll(zip, urls, folder, counter, cardNames) {
         let task = new Task();
         let indexes = Object.keys(urls);
         for (let i of indexes) {
             if (urls[i]) {
-                task.wait(download(zip, urls[i], folder + "/" + cardNames[i] + ".jpg"));
+                task.wait(download(zip, urls[i], folder + "/" + cardNames[i] + ".jpg", counter));
             }
         }
         return task;
@@ -175,6 +187,27 @@
         referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
     }
 
+    function count(arr) {
+        let result = 0;
+        for (let x of arr) {
+            if (x) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+
+    let idol    = unsafeWindow.idol;
+
+    let images  = idol.images;
+    let large   = images[ImageType.large];
+    let premium = images[ImageType.premium];
+    let noframe = images[ImageType.noframe];
+
+    idolName  = idol.detail_list[0].data.real_name;
+
+    // remove class
     const notExistClass = "not_exist";
     let not_exists = document.getElementsByClassName(notExistClass);
     while(not_exists.length > 0) {
@@ -182,11 +215,6 @@
         not_exists[0].classList.remove(notExistClass);
     }
 
-    let idol = unsafeWindow.idol;
-
-    idolName = idol.detail_list[0].data.real_name;
-
-    // unlock gallery
     updateIdol(idol);
 
     // download button
@@ -198,33 +226,41 @@
 
     btn.innerHTML = "Save all images";
 
-    btn.onclick = function() {
-        failCount = 0;
-        btn.disabled = true;
-        btn.innerHTML = "Downloading...";
+    btn.onclick = () => {
+        class Counter {
+            constructor() {
+                this.success = 0;
+                this.fail    = 0;
+                this.total   = 0;
+            }
 
-        let images = idol.images;
+            update() {
+                btn.innerHTML = "Downloading... " + this.success + "/" + this.fail + "/" + this.total;
+            }
+        }
+
+        btn.disabled = true;
+
+        let counter = new Counter();
+        counter.total = count(large, "l") + count(premium, "p") + count(noframe, "n");
+        counter.update();
 
         let zip = new JSZip();
 
         let task = new Task();
-        task.wait(downloadAll(zip, images.l, "large"));
-        task.wait(downloadAll(zip, images.l_premium, "premium"));
-        task.wait(downloadAll(zip, images.l_noframe, "noframe"));
+        task.wait(downloadAll(zip, large, "large", counter, cardNames));
+        task.wait(downloadAll(zip, premium, "premium", counter, cardNames));
+        task.wait(downloadAll(zip, noframe, "noframe", counter, cardNames));
 
-        task.onCompleted = function() {
+        task.onCompleted = () => {
             btn.innerHTML = "Packaging...";
 
             zip.generateAsync({type:"blob"})
-                .then(
-                function(content) {
-                    saveAs(content, idolName + ".zip");
-                }
-            );
+                .then(content => saveAs(content, idolName + ".zip"));
 
-            btn.innerHTML = "Finished" + failCount > 0 ? (", " + failCount + " failed") : "";
+            btn.innerHTML = "Finished" + counter.fail > 0 ? (", " + failCount + " failed") : "";
 
-            setTimeout(function() {
+            setTimeout(() => {
                 btn.disabled = false;
                 btn.innerHTML = "Save all images";
             }, 3000);
