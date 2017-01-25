@@ -15,6 +15,26 @@
 // ==/UserScript==
 
 (function() {
+    const resources = {
+        "en": {
+            buttonText:  "Save all images",
+            downloading: "Downloading... {0}/{1}/{2}",
+            packaing:    "Packaging...",
+            finished:    "Finished",
+            failed:      ", {0} failed"
+        },
+        "zh-CN": {
+            buttonText:  "保存全部图片",
+            downloading: "下载中…… {0}/{1}/{2}",
+            packaing:    "打包中……",
+            finished:    "已完成",
+            failed:      "，其中 {0} 失败"
+        }
+    };
+
+    let resource = resources[navigator.language];
+    if (resource === undefined) resource = resources["en"];
+
     const ImageType = {
         large:    "l",
         m2:       "m2",
@@ -26,6 +46,16 @@
 
     let cardNames = [];
     let idolName;
+
+
+    String.prototype.format = function() {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function(match, number) { 
+            return args[number] !== undefined
+                ? args[number]
+                : match;
+        });
+    };
 
     function updateIdol(idol) {
         let images = idol.images;
@@ -197,7 +227,6 @@
         return result;
     }
 
-
     let idol    = unsafeWindow.idol;
 
     let images  = idol.images;
@@ -224,7 +253,7 @@
     btn.className = "grayButton300";
     btn.setAttribute("style", "position: relative;");
 
-    btn.innerHTML = "Save all images";
+    btn.innerHTML = resource.buttonText;
 
     btn.onclick = () => {
         class Counter {
@@ -235,7 +264,7 @@
             }
 
             update() {
-                btn.innerHTML = "Downloading... " + this.success + "/" + this.fail + "/" + this.total;
+                btn.innerHTML = resource.downloading.format(this.success, this.fail, this.total);
             }
         }
 
@@ -253,17 +282,19 @@
         task.wait(downloadAll(zip, noframe, "noframe", counter, cardNames));
 
         task.onCompleted = () => {
-            btn.innerHTML = "Packaging...";
+            btn.innerHTML = resource.packaing;
 
             zip.generateAsync({type:"blob"})
-                .then(content => saveAs(content, idolName + ".zip"));
+                .then(content => {
+                    saveAs(content, idolName + ".zip");
 
-            btn.innerHTML = "Finished" + counter.fail > 0 ? (", " + failCount + " failed") : "";
+                    btn.innerHTML = resource.finished + (counter.fail > 0 ? resource.failed.format(counter.fail) : "");
 
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = "Save all images";
-            }, 3000);
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = resource.buttonText;
+                    }, 3000);
+                });
         };
     };
 
