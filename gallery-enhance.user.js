@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cinderella Girls gallery enhance
 // @namespace    http://github.com/Yoctillion
-// @version      1.2
+// @version      1.3
 // @author       Yoctillion
 // @description  Unlock cards and download
 // @include      http://sp.pf.mbga.jp/12008305/?guid=ON&*url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fidol_gallery%2Fidol_detail%2F*
