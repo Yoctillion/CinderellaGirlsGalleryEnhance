@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Cinderella Girls gallery enhance
 // @namespace    http://github.com/Yoctillion
-// @version      1.3
+// @version      1.4
 // @author       Yoctillion
 // @description  Unlock cards and download
 // @include      http://sp.pf.mbga.jp/12008305/?guid=ON&*url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fidol_gallery%2Fidol_detail%2F*
 // @require      https://raw.githubusercontent.com/Stuk/jszip/master/dist/jszip.min.js
-// @require      https://raw.githubusercontent.com/eligrey/FileSaver.js/master/FileSaver.min.js
+// @require      https://raw.githubusercontent.com/eligrey/FileSaver.js/b4a918669accb81f184c610d741a4a8e1306aa27/FileSaver.min.js
 // @updateURL    https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/gallery-enhance.user.js
 // @downloadURL  https://raw.githubusercontent.com/Yoctillion/CinderellaGirlsGalleryEnhance/master/gallery-enhance.user.js
 // @license      https://github.com/Yoctillion/CinderellaGirlsGalleryEnhance/blob/master/LICENSE
@@ -50,7 +50,7 @@
 
     String.prototype.format = function() {
         var args = arguments;
-        return this.replace(/{(\d+)}/g, function(match, number) { 
+        return this.replace(/{(\d+)}/g, function(match, number) {
             return args[number] !== undefined
                 ? args[number]
                 : match;
@@ -219,8 +219,8 @@
 
     function count(arr) {
         let result = 0;
-        for (let x of arr) {
-            if (x) {
+        for (let k in arr) {
+            if (arr[k]) {
                 result++;
             }
         }
@@ -300,4 +300,22 @@
 
     let naviIcon = document.getElementsByClassName("icon_navi")[0];
     insertAfter(btn, naviIcon);
+
+    let timeout = 300;
+    let click = 0;
+    let lastElement;
+    $("div.idol").click(function() {
+        if (click === 1 && this === lastElement) {
+            let index = $(this).attr("data-index");
+            let id = idol.detail_list[index].data.hash_card_id;
+            window.location.href = "http://sp.pf.mbga.jp/12008305/?guid=ON&url=http%3A%2F%2F125.6.169.35%2Fidolmaster%2Fauction%2Fhistory%2F" + id;
+        } else {
+            click = 1;
+            lastElement = this;
+            setTimeout(function() {
+                click = 0;
+                lastElement = null;
+            }, timeout);
+        }
+    });
 })();
